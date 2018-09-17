@@ -3,7 +3,7 @@ setlocal EnableExtensions EnableDelayedExpansion
 set build_config=Debug
 if /i "%1" == "release" set build_config=Release
 
-msbuild server\server.vcxproj /p:Configuration=%build_config%;Platform=x64
+msbuild server\c\server.vcxproj /p:Configuration=%build_config%;Platform=x64
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 msbuild client\native\client.vcxproj /p:Configuration=%build_config%;Platform=x64
