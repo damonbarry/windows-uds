@@ -53,7 +53,7 @@ int with_winsock()
     if (sock == INVALID_SOCKET)
     {
         int error = WSAGetLastError();
-        printf("socket error: %d", error);
+        printf("socket error: %d\n", error);
         return error;
     }
 
@@ -74,7 +74,7 @@ int client(SOCKET sock)
     if (connect(sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1)
     {
         int error = WSAGetLastError();
-        printf("connect error: %d", error);
+        printf("connect error: %d\n", error);
         return error;
     }
 

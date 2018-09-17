@@ -45,9 +45,7 @@ void stop_winsock()
 
 int with_winsock()
 {
-    SOCKET sock = INVALID_SOCKET;
-
-    sock = socket(AF_UNIX, SOCK_STREAM, 0);
+    SOCKET sock = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sock == INVALID_SOCKET) {
         int error = WSAGetLastError();
         printf("socket error: %d\n", error);
@@ -56,6 +54,7 @@ int with_winsock()
 
     int error = server(sock);
 
+    closesocket(sock);
     DeleteFileA(socket_path); // analogous to 'unlink'
     return error;
 }
@@ -89,10 +88,10 @@ int server(SOCKET sock)
         return error;
     }
 
-    printf("accepted a connection\n" );
+    printf("accepted a connection\n");
 
     printf("relaying %zu bytes: '%s'\n", sizeof(buf) - 1, buf);
-    if (send(client, buf, (int)sizeof(buf) - 1, 0 ) == SOCKET_ERROR) {
+    if (send(client, buf, (int)sizeof(buf) - 1, 0) == SOCKET_ERROR) {
         int error = WSAGetLastError();
         printf("send error: %d", error);
         return error;
@@ -101,7 +100,7 @@ int server(SOCKET sock)
 	ULONG pid;
 	if (ioctlsocket(client, SIO_AF_UNIX_GETPEERPID, &pid) == SOCKET_ERROR) {
         int error = WSAGetLastError();
-        printf("WSAIoctl(SIO_AF_UNIX_GETPEERPID) error: %d", error);
+        printf("ioctlsocket(SIO_AF_UNIX_GETPEERPID) error: %d", error);
         return error;
 	}
 
