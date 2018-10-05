@@ -4,9 +4,9 @@ use std::fs;
 use std::mem;
 use std::process;
 use std::ptr;
-use winapi::ctypes::{c_long, c_void};
+use winapi::ctypes::c_long;
 use winapi::shared::ntdef::CHAR;
-use winapi::shared::ws2def::{ADDRESS_FAMILY, AF_UNIX, SOCKADDR};
+use winapi::shared::ws2def::{ADDRESS_FAMILY, AF_UNIX};
 use winapi::um::winsock2::{
     accept, bind, closesocket, ioctlsocket, listen, send,   // Berkeley functions
     shutdown, socket,
@@ -17,8 +17,9 @@ use winapi::um::winsock2::{
 
 const BUFFER: &str = "af_unix from Windows to Windows!";
 const SOCKET_PATH: &str = "server.sock";
-const SIO_AF_UNIX_GETPEERPID: c_long = 0x58000100;
+const SIO_AF_UNIX_GETPEERPID: c_long = 0x5800_0100;
 
+#[repr(C)]
 #[allow(non_camel_case_types)]
 pub struct sockaddr_un {
     pub sun_family: ADDRESS_FAMILY,
@@ -48,9 +49,9 @@ fn main() {
         for (dst, src) in server_addr.sun_path.iter_mut().zip(SOCKET_PATH.chars()) {
             *dst = src as i8
         }
-        let pv_server_addr: *mut c_void = &mut server_addr as *mut _ as *mut c_void;
+        let len = mem::size_of::<sockaddr_un>();
 
-        if bind(sock, &mut *(pv_server_addr as *mut SOCKADDR), mem::size_of::<sockaddr_un>() as i32) == SOCKET_ERROR {
+        if bind(sock, &server_addr as *const _ as *const _, len as _) == SOCKET_ERROR {
             let error = WSAGetLastError();
             println!("bind error: {}", error);
             process::exit(error);
