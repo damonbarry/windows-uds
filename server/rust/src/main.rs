@@ -8,11 +8,8 @@ use winapi::ctypes::c_long;
 use winapi::shared::ntdef::CHAR;
 use winapi::shared::ws2def::{ADDRESS_FAMILY, AF_UNIX};
 use winapi::um::winsock2::{
-    accept, bind, closesocket, ioctlsocket, listen, send,   // Berkeley functions
-    shutdown, socket,
-    WSACleanup, WSAGetLastError, WSAStartup,                // Winsock2 functions
-    WSADATA,                                                // types
-    INVALID_SOCKET, SOCKET_ERROR, SOMAXCONN, SOCK_STREAM,   // constants
+    accept, bind, closesocket, ioctlsocket, listen, send, shutdown, socket, WSACleanup,
+    WSAGetLastError, WSAStartup, INVALID_SOCKET, SOCKET_ERROR, SOCK_STREAM, SOMAXCONN, WSADATA,
 };
 
 const BUFFER: &str = "af_unix from Windows to Windows!";
@@ -99,7 +96,7 @@ fn main() {
             process::exit(error);
         }
 
-        let _ = fs::remove_file(SOCKET_PATH);   // analogous to 'unlink'
+        let _ = fs::remove_file(SOCKET_PATH); // analogous to 'unlink'
         closesocket(sock);
         WSACleanup();
     }
