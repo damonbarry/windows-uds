@@ -1,18 +1,26 @@
 extern crate winapi;
-extern crate ws2_32;
 
 use std::fs;
 use std::mem;
 use std::process;
 use std::ptr;
-use winapi::*;
-use ws2_32::*;
+use winapi::ctypes::{c_long, c_void};
+use winapi::shared::ntdef::CHAR;
+use winapi::shared::ws2def::{ADDRESS_FAMILY, AF_UNIX, SOCKADDR};
+use winapi::um::winsock2::{
+    accept, bind, closesocket, ioctlsocket, listen, send,   // Berkeley functions
+    shutdown, socket,
+    WSACleanup, WSAGetLastError, WSAStartup,                // Winsock2 functions
+    WSADATA,                                                // types
+    INVALID_SOCKET, SOCKET_ERROR, SOMAXCONN, SOCK_STREAM,   // constants
+};
 
 const BUFFER: &str = "af_unix from Windows to Windows!";
 const SOCKET_PATH: &str = "server.sock";
 const SIO_AF_UNIX_GETPEERPID: c_long = 0x58000100;
 
-pub struct SockAddrUn {
+#[allow(non_camel_case_types)]
+pub struct sockaddr_un {
     pub sun_family: ADDRESS_FAMILY,
     pub sun_path: [CHAR; 108],
 }
@@ -33,7 +41,7 @@ fn main() {
             process::exit(error);
         }
 
-        let mut server_addr = SockAddrUn {
+        let mut server_addr = sockaddr_un {
             sun_family: AF_UNIX as u16,
             sun_path: mem::zeroed(),
         };
@@ -42,7 +50,7 @@ fn main() {
         }
         let pv_server_addr: *mut c_void = &mut server_addr as *mut _ as *mut c_void;
 
-        if bind(sock, &mut *(pv_server_addr as *mut SOCKADDR), mem::size_of::<SockAddrUn>() as i32) == SOCKET_ERROR {
+        if bind(sock, &mut *(pv_server_addr as *mut SOCKADDR), mem::size_of::<sockaddr_un>() as i32) == SOCKET_ERROR {
             let error = WSAGetLastError();
             println!("bind error: {}", error);
             process::exit(error);
